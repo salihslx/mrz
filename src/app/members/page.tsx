@@ -166,7 +166,7 @@ export default function MembersPage() {
             key={n.name}
             className="grid md:grid-cols-[1.1fr,1.6fr] gap-6 items-stretch rounded-3xl border border-white/10 bg-white/5 p-6"
           >
-            <FlexibleImage src={n.img} alt={n.name} ratio="video" fit="cover" />
+          
 
             <div className="flex flex-col">
               <div className="flex items-center gap-3">

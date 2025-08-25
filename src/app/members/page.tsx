@@ -1,5 +1,5 @@
 // =============================
-// app/members/page.tsx (Enhanced, flexible images)
+// app/members/page.tsx
 // =============================
 "use client";
 
@@ -8,43 +8,73 @@ import Footer from "@/components/Footer";
 import Image from "next/image";
 import { Youtube, Instagram, Twitter, BadgeCheck, Gamepad2 } from "lucide-react";
 
-// If you later want the 3D mascot back, uncomment these lines and the JSX section
-// import { Canvas, useFrame } from "@react-three/fiber";
-// import { Float, OrbitControls } from "@react-three/drei";
-// import { useRef } from "react";
-
-// --- Members data
+// -----------------------------
+// Members data
+// -----------------------------
 const members = [
-  { name: "Mrz Thoppi (Nihad)", role: "Lead Creator", img: "/images/nihad.png", socials: { yt: "https://www.youtube.com/@mrzthoppi", ig: "https://www.instagram.com/", tw: "https://x.com/" }, featured: true },
-  { name: "Mrz Shameer", role: "Streamer", img: "/images/", socials: { yt: "#", ig: "#", tw: "#" } },
-  { name: "Mrz Rambo", role: "Gamer", img: "/images/", socials: { yt: "#", ig: "#", tw: "#" } },
-  { name: "Mrz Jasi", role: "Content", img: "/images/", socials: { yt: "#", ig: "#", tw: "#" } },
-  { name: "Mrz Mammu", role: "IRL Crew", img: "/images/", socials: { yt: "#", ig: "#", tw: "#" } },
-  { name: "Mrz Adil", role: "Editor", img: "/images/", socials: { yt: "#", ig: "#", tw: "#" } },
-  { name: "Mrz Vakeel", role: "Manager", img: "/images/", socials: { yt: "#", ig: "#", tw: "#" } },
+  {
+    name: "Mrz Thoppi (Nihad)",
+    role: "Lead Creator",
+    img: "/images/mrz.jpg",
+    socials: {
+      yt: "https://www.youtube.com/@mrzthoppi",
+      ig: "https://www.instagram.com/",
+      tw: "https://x.com/",
+    },
+    featured: true,
+  },
+  { name: "Mrz Shameer", role: "Streamer", img: "/images/placeholder.jpg", socials: { yt: "#", ig: "#", tw: "#" } },
+  { name: "Mrz Rambo", role: "Gamer", img: "/images/placeholder.jpg", socials: { yt: "#", ig: "#", tw: "#" } },
+  { name: "Mrz Jasi", role: "Content", img: "/images/placeholder.jpg", socials: { yt: "#", ig: "#", tw: "#" } },
+  { name: "Mrz Mammu", role: "IRL Crew", img: "/images/placeholder.jpg", socials: { yt: "#", ig: "#", tw: "#" } },
+  { name: "Mrz Adil", role: "Editor", img: "/images/placeholder.jpg", socials: { yt: "#", ig: "#", tw: "#" } },
+  { name: "Mrz Vakeel", role: "Manager", img: "/images/placeholder.jpg", socials: { yt: "#", ig: "#", tw: "#" } },
 ];
 
-// Small helper: consistent, flexible image that fits any size
-function FlexibleImage({ src, alt, ratio = "4/3", fit = "cover" }: { src: string; alt: string; ratio?: `${number}/${number}` | "square" | "video"; fit?: "cover" | "contain" }) {
-  const aspectClass = ratio === "square" ? "aspect-square" : ratio === "video" ? "aspect-video" : `aspect-[${ratio}]`;
+// -----------------------------
+// Safe whitelist for aspect classes (avoid dynamic Tailwind strings)
+// -----------------------------
+const RATIO_CLASS: Record<"square" | "video" | "4/3" | "16/9", string> = {
+  square: "aspect-square",
+  video: "aspect-video",
+  "4/3": "aspect-[4/3]",
+  "16/9": "aspect-[16/9]",
+};
+
+// -----------------------------
+// Flexible image helper
+// -----------------------------
+function FlexibleImage(props: {
+  src: string;
+  alt: string;
+  ratio?: "square" | "video" | "4/3" | "16/9";
+  fit?: "cover" | "contain";
+  priority?: boolean;
+}) {
+  const { src, alt, ratio = "4/3", fit = "cover", priority = false } = props;
+  const aspectClass = RATIO_CLASS[ratio] ?? RATIO_CLASS["4/3"];
+  const fitClass = fit === "contain" ? "object-contain" : "object-cover";
+
   return (
-    <div className={`${aspectClass} w-full relative overflow-hidden bg-white/5`}> {/* bg as subtle placeholder */}
+    <div className={`${aspectClass} w-full relative overflow-hidden bg-white/5`}>
       <Image
         src={src}
         alt={alt}
         fill
         sizes="(max-width: 1024px) 100vw, 33vw"
-        className={`rounded-none object-${fit} object-center`} // switch to object-contain to avoid any crop
-        priority={false}
+        className={`${fitClass} object-center`}
+        priority={priority}
       />
     </div>
   );
 }
 
+// -----------------------------
+// Member card
+// -----------------------------
 function MemberCard({ p }: { p: (typeof members)[number] }) {
   return (
     <article className="group rounded-3xl overflow-hidden border border-white/10 bg-white/5 hover:bg-white/10 transition">
-      {/* Choose your preferred ratio: "4/3" (default), "square", or "video" */}
       <FlexibleImage src={p.img} alt={p.name} ratio="4/3" fit="cover" />
 
       <div className="p-5">
@@ -84,15 +114,19 @@ function MemberCard({ p }: { p: (typeof members)[number] }) {
   );
 }
 
+// -----------------------------
+// Page
+// -----------------------------
 export default function MembersPage() {
   const leaders = members.filter((m) => m.featured);
   const rest = members.filter((m) => !m.featured);
+  const heroMember = leaders[0];
 
   return (
     <div className="min-h-screen bg-black text-white">
       <Header />
 
-      {/* HERO with flexible background image + overlay + ring */}
+      {/* HERO */}
       <section className="relative overflow-hidden">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(0,229,255,0.18),transparent_50%),radial-gradient(circle_at_bottom_right,rgba(255,0,179,0.14),transparent_40%)]" />
         <div className="container py-12 grid lg:grid-cols-2 gap-8 items-center">
@@ -100,24 +134,26 @@ export default function MembersPage() {
             <h1 className="text-3xl md:text-5xl font-black">Core Crew</h1>
             <p className="mt-3 text-white/70">The creators, streamers, and IRL squad behind MRZ Gang.</p>
             <div className="mt-6 flex flex-wrap gap-3 text-sm">
-              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/10"><BadgeCheck className="size-4"/> Verified creators</span>
-              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/10"><Gamepad2 className="size-4"/> Live + IRL</span>
+              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/10">
+                <BadgeCheck className="size-4" /> Verified creators
+              </span>
+              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/10">
+                <Gamepad2 className="size-4" /> Live + IRL
+              </span>
             </div>
           </div>
 
-          {/* Flexible hero image card */}
+          {/* HERO image card — uses MRZ image, no `p` */}
           <div className="h-[360px] rounded-3xl border border-white/10 relative overflow-hidden">
             <Image
               src="/images/mrz.jpg"
-              alt="MRZ montage"
+              alt={heroMember?.name ?? "MRZ montage"}
               fill
               sizes="(max-width: 1024px) 100vw, 50vw"
-              className="object-cover md:object-cover rounded-3xl md:scale-100 scale-90"
+              className="object-cover rounded-3xl"
               priority
             />
-            {/* Gradient overlay */}
             <div className="absolute inset-0 bg-gradient-to-br from-black to-black/20 rounded-3xl" />
-            {/* Ring */}
             <div className="pointer-events-none absolute inset-0 rounded-3xl ring-1 ring-white/10" />
           </div>
         </div>
@@ -126,8 +162,10 @@ export default function MembersPage() {
       {/* FEATURED */}
       <section className="container py-10">
         {leaders.map((n) => (
-          <article key={n.name} className="grid md:grid-cols-[1.1fr,1.6fr] gap-6 items-stretch rounded-3xl border border-white/10 bg-white/5 p-6">
-            {/* Left: flexible portrait/cover */}
+          <article
+            key={n.name}
+            className="grid md:grid-cols-[1.1fr,1.6fr] gap-6 items-stretch rounded-3xl border border-white/10 bg-white/5 p-6"
+          >
             <FlexibleImage src={n.img} alt={n.name} ratio="video" fit="cover" />
 
             <div className="flex flex-col">
@@ -136,19 +174,37 @@ export default function MembersPage() {
                 <span className="text-xs px-2 py-1 rounded-full border border-white/15">{n.role}</span>
               </div>
               <p className="mt-3 text-white/70 max-w-prose">
-                Nihad (aka <b>Mrz Thoppi</b>) is the most prominent face of MRZ Gang — a creator known for long-form live streams,
-                gaming collabs, IRL events across Kerala, and high-energy vlogs. The team began as a gaming squad and grew into a
-                full-on content collective with multiple creators and editors.
+                Nihad (aka <b>Mrz Thoppi</b>) is the most prominent face of MRZ Gang — a creator known for long-form live
+                streams, gaming collabs, IRL events across Kerala, and high-energy vlogs. The team began as a gaming squad and
+                grew into a full-on content collective with multiple creators and editors.
               </p>
               <div className="mt-4 flex flex-wrap items-center gap-2 text-sm">
-                <a className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white text-black font-semibold" href={n.socials.yt} target="_blank" rel="noreferrer" aria-label="YouTube">
-                  <Youtube className="size-4"/> YouTube
+                <a
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white text-black font-semibold"
+                  href={n.socials.yt}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label="YouTube"
+                >
+                  <Youtube className="size-4" /> YouTube
                 </a>
-                <a className="inline-flex items-center gap-2 px-4 py-2 rounded-xl ring-1 ring-white/20 hover:bg-white/10" href={n.socials.ig} target="_blank" rel="noreferrer" aria-label="Instagram">
-                  <Instagram className="size-4"/> Instagram
+                <a
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl ring-1 ring-white/20 hover:bg-white/10"
+                  href={n.socials.ig}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label="Instagram"
+                >
+                  <Instagram className="size-4" /> Instagram
                 </a>
-                <a className="inline-flex items-center gap-2 px-4 py-2 rounded-xl ring-1 ring-white/20 hover:bg-white/10" href={n.socials.tw} target="_blank" rel="noreferrer" aria-label="X (Twitter)">
-                  <Twitter className="size-4"/> X
+                <a
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl ring-1 ring-white/20 hover:bg-white/10"
+                  href={n.socials.tw}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label="X (Twitter)"
+                >
+                  <Twitter className="size-4" /> X
                 </a>
               </div>
               <div className="mt-5 grid grid-cols-3 gap-3 max-w-md text-center">

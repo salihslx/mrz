@@ -14,10 +14,10 @@ import { Sparkles, Handshake, MailCheck, CalendarDays, ShieldCheck } from "lucid
 // =============================
 const schema = z.object({
   name: z.string().min(2, "Please enter your name"),
-  contact: z.string().min(3, "Email or Instagram required"), // email or IG
+  contact: z.string().min(3, "Email or Instagram required"),
   company: z.string().optional(),
   role: z.string().min(2, "Tell us your role"),
-  collabType: z.enum([
+  promoType: z.enum([
     "Brand Integration",
     "Sponsorship",
     "Event/IRL",
@@ -27,11 +27,10 @@ const schema = z.object({
   ]),
   budget: z.enum(["< ₹25k", "₹25k–₹1L", "₹1L–₹5L", "> ₹5L"]).optional(),
   city: z.string().optional(),
-  date: z.string().optional(), // preferred date
+  date: z.string().optional(),
   links: z.string().optional(),
   message: z.string().min(5, "A short message helps"),
-  // Honeypot
-  website: z.string().max(0).optional(),
+  website: z.string().max(0).optional(), // honeypot
 });
 
 type FormData = z.infer<typeof schema>;
@@ -57,7 +56,7 @@ export default function Page() {
       if (!res.ok) throw new Error("Failed");
       setStatus("sent");
       reset();
-    } catch (e) {
+    } catch {
       setStatus("error");
     }
   };
@@ -67,39 +66,25 @@ export default function Page() {
       <Header />
 
       <section className="container mx-auto px-4 py-12 grid lg:grid-cols-2 gap-10 items-start">
-        {/* Left: Meta + Message */}
+        {/* Left: Intro */}
         <div>
           <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
             <div className="inline-flex items-center gap-2 text-sm text-white/60">
-              <Sparkles className="size-4" /> MRZ Gang
+              <Sparkles className="size-4" /> MRZ Team
             </div>
-            <h1 className="mt-2 text-4xl md:text-6xl font-black tracking-tight">Business Collaborations</h1>
+            <h1 className="mt-2 text-4xl md:text-6xl font-black tracking-tight">Brand Promotions</h1>
             <p className="mt-3 text-white/70 max-w-prose">
-              We love partnering with brands, events, and creators. Share your idea and we’ll get back to you.
+              Partner with MRZ Team for impactful brand integrations, sponsorships, and live event promotions.
+              Share your idea below and our team will connect with you.
             </p>
-
-            {/* Not hiring notice */}
-            <div className="mt-5 rounded-2xl border border-white/15 bg-white/5 p-4">
-              <div className="flex items-start gap-3">
-                <ShieldCheck className="mt-0.5 size-5 opacity-80" />
-                <div>
-                  <div className="font-semibold">We’re not hiring right now</div>
-                  <p className="text-sm text-white/70 mt-0.5">
-                    This form is for <strong>collabs only</strong> (brand integrations, sponsorships, events, etc.).
-                  </p>
-                </div>
-              </div>
-            </div>
 
             {/* Availability blurb */}
             <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-white/70">
               <CalendarDays className="size-4" />
-              <span>
-                Availability opens weekly. Share your preferred date and city; our team will confirm slots.
-              </span>
+              <span>Availability opens weekly. Share your preferred date and city; our team will confirm slots.</span>
             </div>
 
-            {/* Mini stats / trust strip */}
+            {/* Trust metrics */}
             <div className="mt-6 grid grid-cols-3 gap-3 text-center">
               {[
                 { k: "Avg. Views", v: "100k+" },
@@ -115,7 +100,7 @@ export default function Page() {
           </motion.div>
         </div>
 
-        {/* Right: Form Card */}
+        {/* Right: Form */}
         <motion.form
           onSubmit={handleSubmit(onSubmit)}
           initial={{ opacity: 0, y: 12 }}
@@ -125,7 +110,7 @@ export default function Page() {
         >
           <div className="flex items-center gap-2 text-white/80">
             <Handshake className="size-5" />
-            <h2 className="text-xl font-bold">Collab Request</h2>
+            <h2 className="text-xl font-bold">Promotion Request</h2>
           </div>
 
           <div className="mt-6 grid gap-3">
@@ -150,7 +135,7 @@ export default function Page() {
                 {...register("company")}
               />
               <input
-                placeholder="Your role (creator/manager/brand)"
+                placeholder="Your role (brand manager / creator)"
                 className="px-4 py-3 rounded-xl bg-black/60 ring-1 ring-white/10 outline-none"
                 {...register("role")}
               />
@@ -160,7 +145,7 @@ export default function Page() {
             <div className="grid sm:grid-cols-3 gap-3">
               <select
                 className="px-4 py-3 rounded-xl bg-black/60 ring-1 ring-white/10 outline-none"
-                {...register("collabType")}
+                {...register("promoType")}
                 defaultValue="Brand Integration"
               >
                 <option>Brand Integration</option>
@@ -198,14 +183,14 @@ export default function Page() {
                 {...register("date")}
               />
               <input
-                placeholder="Links (deck, portfolio, reels)"
+                placeholder="Links (deck, portfolio, campaign refs)"
                 className="px-4 py-3 rounded-xl bg-black/60 ring-1 ring-white/10 outline-none"
                 {...register("links")}
               />
             </div>
 
             <textarea
-              placeholder="Tell us about the collab idea (what, when, where)"
+              placeholder="Tell us about the promotion idea (what, when, where)"
               rows={5}
               className="px-4 py-3 rounded-xl bg-black/60 ring-1 ring-white/10 outline-none"
               {...register("message")}
@@ -213,13 +198,7 @@ export default function Page() {
             {errors.message && <p className="text-xs text-red-400">{errors.message.message}</p>}
 
             {/* Honeypot */}
-            <input
-              type="text"
-              tabIndex={-1}
-              autoComplete="off"
-              className="hidden"
-              {...register("website")}
-            />
+            <input type="text" tabIndex={-1} autoComplete="off" className="hidden" {...register("website")} />
 
             <button
               className="mt-2 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-cyan-400 text-black font-bold disabled:opacity-70"
@@ -232,22 +211,20 @@ export default function Page() {
                 </>
               ) : (
                 <>
-                  <Handshake className="size-4" /> Send Collab Request
+                  <Handshake className="size-4" /> Send Promotion Request
                 </>
               )}
             </button>
 
             {status === "sent" && (
               <div className="text-green-400 inline-flex items-center gap-2 mt-2">
-                <MailCheck className="size-4" /> Thanks! We got your message.
+                <MailCheck className="size-4" /> Thanks! We got your request.
               </div>
             )}
-            {status === "error" && (
-              <div className="text-red-400">Something went wrong. Try again.</div>
-            )}
+            {status === "error" && <div className="text-red-400">Something went wrong. Try again.</div>}
 
             <p className="text-xs text-white/50 mt-2 inline-flex items-center gap-2">
-              <ShieldCheck className="size-3" /> We’ll only use your details to contact you about this collaboration.
+              <ShieldCheck className="size-3" /> We’ll only use your details to contact you about brand promotions.
             </p>
           </div>
         </motion.form>

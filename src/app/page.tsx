@@ -6,6 +6,22 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { Calendar, PlayCircle, Youtube, Instagram, Twitch, Gamepad2, Users } from "lucide-react";
 
+function FlexibleImage({ src, alt, ratio = "4/3", fit = "cover" }: { src: string; alt: string; ratio?: `${number}/${number}` | "square" | "video"; fit?: "cover" | "contain" }) {
+  const aspectClass = ratio === "square" ? "aspect-square" : ratio === "video" ? "aspect-video" : `aspect-[${ratio}]`;
+  return (
+    <div className={`${aspectClass} w-full relative overflow-hidden bg-white/5`}> {/* bg as subtle placeholder */}
+      <Image
+        src={src}
+        alt={alt}
+        fill
+        sizes="(max-width: 1024px) 100vw, 33vw"
+        className={`rounded-none object-${fit} object-center`} // switch to object-contain to avoid any crop
+        priority={false}
+      />
+    </div>
+  );
+}
+
 export default function Page() {
   return (
     <div className="min-h-screen bg-black text-white">
@@ -22,15 +38,9 @@ export default function Page() {
           MRZ Team
         </motion.h1>
 
-        <div className="mt-8 md:mt-10 relative w-full aspect-[16/9] rounded-3xl overflow-hidden border border-white/10">
-          <Image
-            src="/images/mrz.jpg"
-            alt="MRZ Team"
-            fill
-            className="object-cover"
-            priority
-          />
-        </div>
+        <FlexibleImage src="/images/mrz.jpg" alt="MRZ Team" ratio="16/9" fit="cover" />
+
+
 
         {/* Optional quick links / socials */}
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
@@ -73,10 +83,12 @@ export default function Page() {
         </h2>
         <div className="mt-8 grid md:grid-cols-3 gap-6">
           {[
-            { city: "Calicut", date: "Sep 14", detail: "MRZ x Bamboo Boys meetup" },
-            { city: "Thalassery", date: "Oct 05", detail: "Store launch + live vlog" },
-            { city: "Kochi", date: "Oct 26", detail: "Gaming arena takeover" },
-          ].map((e) => (
+  { city: "Calicut", date: "Sep 14", detail: "MRZ x Bamboo Boys meetup" },
+  { city: "Thalassery", date: "Oct 05", detail: "Store launch + live vlog" },
+  { city: "Kochi", date: "Oct 26", detail: "Gaming arena takeover" },
+  { city: "Mannarkkad", date: "Aug 25", detail: "Inauguration & IRL event" },
+]
+.map((e) => (
             <div key={e.city} className="rounded-2xl border border-white/10 p-5 bg-white/[0.02]">
               <div className="text-sm text-white/60">{e.date}</div>
               <div className="mt-1 text-xl font-extrabold">{e.city}</div>
